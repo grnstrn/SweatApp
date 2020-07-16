@@ -4,9 +4,11 @@ import com.example.sweatapp.domain.Role;
 import com.example.sweatapp.domain.User;
 import com.example.sweatapp.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -21,6 +23,11 @@ public class UserService implements UserDetailsService {
     @Autowired
     private final MailSender mailSender;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+
     public UserService(UserRepo userRepo, MailSender mailSender) {
         this.userRepo = userRepo;
         this.mailSender = mailSender;
@@ -28,7 +35,11 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepo.findByUsername(username);
+        User user = userRepo.findByUsername(username);
+        if(user == null){
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;
     }
     public boolean addUser(User user) {
         User userFromDb = userRepo.findByUsername(user.getUsername());
@@ -40,6 +51,7 @@ public class UserService implements UserDetailsService {
         user.setActive(true);
         user.setRoles(Collections.singleton(Role.USER));
         user.setActivationCode(UUID.randomUUID().toString());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepo.save(user);
 
@@ -52,7 +64,7 @@ public class UserService implements UserDetailsService {
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format(
                     "Hello, %s! \n" +
-                            "Welcome to Sweat. Please, visit next link: http://localhost:8080/activate/%s",
+                            "Welcome to Sweat. Please, visit next link: http://%s/activate/%s",
                     user.getUsername(),
                     user.getActivationCode()
             );
@@ -114,5 +126,16 @@ public class UserService implements UserDetailsService {
         if(isEmailChanged){
         sendMessage(user);
         }
+    }
+
+    public void subscribe(User currentUser, User user) {
+        user.getSubscribers().add(currentUser);
+        userRepo.save(user);
+    }
+
+    public void unsubscribe(User currentUser, User user) {
+
+        user.getSubscriptions().remove(currentUser);
+        userRepo.save(user);
     }
 }

@@ -2,6 +2,6 @@
 
 <@c.page>
     <h5>Hello, guest</h5>
-    <div>this is like tweeter
+    <div>Simple app to do something later
     </div>
 </@c.page>
