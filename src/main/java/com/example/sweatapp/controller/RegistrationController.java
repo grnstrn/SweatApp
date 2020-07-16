@@ -1,7 +1,7 @@
 package com.example.sweatapp.controller;
 
 import com.example.sweatapp.domain.User;
-import com.example.sweatapp.domain.dto.CaptchaResponseDto;
+//import com.example.sweatapp.domain.dto.CaptchaResponseDto;
 import com.example.sweatapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,16 +21,16 @@ import java.util.Map;
 
 @Controller
 public class RegistrationController {
-    private final static String CAPTCHA_URL = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s";
+//    private final static String CAPTCHA_URL = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s";
 
     @Autowired
     private UserService userService;
 
-    @Value("${recaptcha.secret}")
-    private String secret;
+//    @Value("${recaptcha.secret}")
+//    private String secret;
 
-    @Autowired
-    private RestTemplate restTemplate;
+//    @Autowired
+//    private RestTemplate restTemplate;
 
     @GetMapping("/registration")
     public String registration() {
@@ -40,16 +40,17 @@ public class RegistrationController {
     @PostMapping("/registration")
     public String addUser(
             @RequestParam("password2") String passwordConfirm,
-            @RequestParam("g-recaptcha-response") String captchaResponse ,
+//            @RequestParam("g-recaptcha-response") String captchaResponse ,
             @Valid User user,
             BindingResult bindingResult,
             Model model
-    ) {
-        String url = String.format(CAPTCHA_URL, secret, captchaResponse);
-        CaptchaResponseDto response = restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
-        if(!response.isSuccess()){
-            model.addAttribute("captchaError","Fill captcha");
-        }
+    )
+    {
+//        String url = String.format(CAPTCHA_URL, secret, captchaResponse);
+//        CaptchaResponseDto response = restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
+//        if(!response.isSuccess()){
+//            model.addAttribute("captchaError","Fill captcha");
+//        }
 
         boolean isConfirmEmpty = StringUtils.isEmpty(passwordConfirm);
         if(isConfirmEmpty){
@@ -59,7 +60,9 @@ public class RegistrationController {
         if(user.getPassword() != null && !user.getPassword().equals(passwordConfirm)){
             model.addAttribute("passwordError", "Passwords are different");
         }
-        if(isConfirmEmpty || bindingResult.hasErrors() || !response.isSuccess()){
+        if(isConfirmEmpty || bindingResult.hasErrors()
+//                || !response.isSuccess()
+        ){
             Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
             model.mergeAttributes(errors);
             return "registration";
