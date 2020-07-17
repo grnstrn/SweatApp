@@ -64,7 +64,7 @@ public class UserService implements UserDetailsService {
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format(
                     "Hello, %s! \n" +
-                            "Welcome to Sweat. Please, visit next link: http://%s/activate/%s",
+                            "Welcome to Sweat. Please, visit next link: http://to-do-app-ls.herokuapp.com/activate/%s",
                     user.getUsername(),
                     user.getActivationCode()
             );
